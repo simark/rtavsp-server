@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import argparse
 import os
 import logging
 import logging.config
@@ -57,16 +58,17 @@ class RTAVSPServer:
 
     self.log.info('Loaded %d streams.', len(self.streams))
 
-  def startListen(self, port, portHttp):
-    ''' avec listenTCP on peut definir l'interface sur laquelle ecouter. '''
-    self.selectThread = stream.SelectThread(self.streams, self.log)
-    self.selectThread.start()
-
+  def startListen(self, portStream, portHttp, interfaceStream, interfaceHttp):
     # Un peu ghetto... donner au webui une reference vers le serveur.
     webui.app.server = self
     resource = wsgi.WSGIResource(reactor, reactor.getThreadPool(), webui.app)
-    reactor.listenTCP(portHttp, server.Site(resource))
-    reactor.listenTCP(port, self.factory)
+
+    reactor.listenTCP(portHttp, server.Site(resource), interface=interfaceHttp)
+    reactor.listenTCP(portStream, self.factory, interface=interfaceStream)
+
+    self.selectThread = stream.SelectThread(self.streams, self.log)
+    self.selectThread.start()
+
     reactor.run()
 
   def addClient(self, client):
@@ -80,9 +82,19 @@ class RTAVSPServer:
 def initLogging():
   logging.config.fileConfig("logging.conf")
 
+def parseOpts(argv):
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--webui-port", type=int, required=True, help="Port de l'interface web.")
+  parser.add_argument("--webui-interface", type=str, help="Adresse IP de l'interface sur laquelle écouter pour l'interface web.", default='')
+  parser.add_argument("--stream-port", type=int, required=True, help="Port du serveur de streaming.")
+  parser.add_argument("--stream-interface", type=str, help="Adresse IP de l'interface sur laquelle écouter pour le streaming.", default='')
+  ns = parser.parse_args()
+  return ns
+
 def main(argv):
   initLogging()
+  args = parseOpts(argv)
   server = RTAVSPServer(os.getcwd())
-  server.startListen(1234, 1235)
+  server.startListen(args.stream_port, args.webui_port, args.stream_interface, args.webui_interface)
 
 main(sys.argv)
