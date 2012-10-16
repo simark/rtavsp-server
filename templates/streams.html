@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}flux &mdash; TélécranUI{% endblock %}
+{% block content %}
+
+<h1>Liste des flux</h1>
+<p>Ci-dessous se trouve la liste de tous les flux vidéos disponibles sur ce serveur Télécran.</p>
+
+<div class="accordion" id="accordion2">
+	{% for stream_id in streams %}
+	{% set stream = streams[stream_id] %}
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" href="#collapse-{{stream_id}}">
+				<span class="nb">{{stream_id}}</span> {{stream.name}}
+			</a>
+		</div>
+		<div id="collapse-{{stream_id}}" class="accordion-body collapse">
+			<div class="accordion-inner">
+				<div class="pull-right preview">
+					<div class="info">{{ ((stream.last_image_size / 1024) | string) | truncate(4, True, '')}} kib</div>
+					<a href="/last_image?id={{stream_id}}">
+						<img src="/last_image?id={{stream_id}}" class="preview-image" alt="">
+					</a>
+				</div>
+				<h3>Objet flux</h3>
+<pre>
+{{stream.stream_info | format_json }}
+</pre>
+				<h3>Entête de la dernière trame</h3>
+<pre>
+{{stream.last_metadata}}
+</pre>
+				<h3>Clients abonnés</h3>
+				<div class="alert alert-info">
+					{% for client in stream.clients %}
+						<li><code>{{client.addr.host}}:{{client.addr.port}}</code> depuis {{ client.current_streams_stats[stream_id].start_time | format_since }}</li>
+					{% else %}
+						Aucun client abonné!
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}

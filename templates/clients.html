@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}clients &mdash; TélécranUI{% endblock %}
+{% block content %}
+
+<h1>Liste des clients</h1>
+<p>Ci-dessous se trouve la liste de tous les clients connectés à ce serveur Télécran.</p>
+
+<div class="accordion" id="accordion2">
+	{% for client in clients %}
+	{% set ip_esc = (client.addr.host | replace('.', '')) + '-' + (client.addr.port | string) %}
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapse-{{ip_esc}}">
+				Client <span class="nb">{{client.addr.host}}:{{client.addr.port}}</span> depuis {{ client.connect_time | format_since }}
+			</a>
+		</div>
+		<div id="collapse-{{ip_esc}}" class="accordion-body collapse">
+			<div class="accordion-inner">
+				<h3>Flux auxquels ce client est abonné</h3>
+				<div class="alert alert-info">
+					{% for stream_id in client.current_streams %}
+					{% set stream = client.current_streams[stream_id] %}
+						<li><code>{{stream}}</code> depuis {{ client.current_streams_stats[stream_id].start_time | format_since }}
+							<ul>
+								<li>Nombre de trames envoyées: {{ client.current_streams_stats[stream_id].nb_frames }}</li>
+								<li>Données envoyés: {{ ((client.current_streams_stats[stream_id].total_bytes_sent | int) * 1000) | filesizeformat }} ({{ client.current_streams_stats[stream_id].total_bytes_sent }})</li>
+							</ul>
+						</li>
+					{% else %}
+						<li>Ce client n'est abonné à aucun flux.</li>
+					{% endfor %}
+				</div>
+				<h3>Dernières commandes de ce client</h3>
+				<div class="alert alert-info">
+						{% for cmd in client.last_commands %}
+							<li>commande: {{ cmd[0] }}, flux: {{ cmd [1] }}, il y a {{ cmd[2] | format_since }}
+						{% else %}
+							<li>Ce client n'a envoyé aucune commande valide.</li>
+						{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% else %}
+	<span>Aucun client n'est connecté !</span>
+	{% endfor %}
+</div>
+{% endblock %}

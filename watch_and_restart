@@ -1,0 +1,24 @@
+# Demarre le serveur et le repart dès qu'une modification à un fichier est faite.
+# Usage: watch_and_restart [fichier1] [fichier2] ...
+
+set -e
+
+function int_handler() {
+  kill $pid
+  exit
+}
+
+if [ "$#" -lt 1 ]; then
+  echo "Spécifiez au moins un fichier."
+  exit
+fi
+
+trap int_handler INT
+
+while true; do
+  RTAVSP_LOGLEVEL=debug python server.py &
+  pid=$!
+  inotifywait -e modify $*
+  kill $pid
+  for i in $(seq 1 $(tput cols)); do echo -n "="; done && echo
+done

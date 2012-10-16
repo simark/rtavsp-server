@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>{% block title %}TélécranUI{% endblock %}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="" />
+		<meta name="author" content="Philippe Proulx, Simon Marchi" />
+		<link rel="icon" type="image/png" href="/static/img/favico.png" />
+		<link href="static/css/bootstrap.min.css" rel="stylesheet" />
+		<style type="text/css">
+			body {
+				padding-top: 70px;
+			}
+			.accordion-heading {
+				background: #0b636c;
+				font-size: 16px;
+			}
+			.accordion-body {
+				background: #0f858f;
+			}
+			.accordion-group {
+				margin-bottom: 10px;
+			}
+			.accordion {
+				margin-top: 20px;
+			}
+			pre {
+				padding: 8px;
+				font-family: Consolas, Monaco, Courier New, monospace;
+			}
+			pre,
+			code {
+				color: #fff;
+				text-shadow: 1px 0px rgba(0,0,0,0.4);
+			}
+			div.preview {
+				margin-top: 10px;
+				margin-right: 10px;
+				border: 3px solid rgba(255, 255, 255, 0.4);
+				position: relative;
+			}
+			div.preview div.info {
+				float: right;
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				background: rgba(0, 0, 0, 0.4);
+				padding: 3px 5px 3px 5px;
+			}
+			.accordion-body h3:nth-of-type(1) {
+				margin-top: 0px;
+			}
+			.accordion-body h3 {
+				margin-top: 15px;
+				margin-bottom: 5px;
+			}
+			.accordion-body ul li {
+				line-height: 24px;
+			}
+			.accordion-heading span.nb {
+				color: #d92432;
+				background: rgba(255, 255, 255, 0.75);
+				padding-left: 5px;
+				padding-right: 5px;
+				/*margin-right: 10px;*/
+				font-weight: bold;
+			}
+			a.accordion-toggle:hover {
+				text-decoration: none;
+				color: #e8e2a1;
+				background: #09525a;
+			}
+			a.accordion-toggle:hover span.nb {
+				background: #fff;
+				text-decoration: none;
+			}
+			div.copyright hr {
+				margin-bottom: 5px;
+			}
+			div.copyright {
+				margin-top: 30px;
+				margin-bottom: 25px;
+				text-align: right;
+				font-size: 12px;
+				color: rgba(255, 255, 255, 0.6);
+			}
+
+			img.preview-image {
+				max-width: 320px;
+				max-height: 240px;
+			}
+		</style>
+		<link href="static/css/bootstrap-responsive.css" rel="stylesheet">
+
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="static/js/jquery.dataTables.min.js"></script>
+		{% block headextra %}
+		{% endblock %}
+	</head>
+
+<body>
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="brand" href="/">Télécran<span style="opacity: 0.7;">UI</span></a>
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+						<li {% if request.path == '/' %}class="active"{% endif %}><a href="/">Flux</a></li>
+						<li {% if request.path == '/clients' %}class="active"{% endif %}><a href="/clients">Clients</a></li>
+						<li class="dropdown  {% if request.path == '/journaux' or request.path == '/tcpdump' %}active{% endif %}" >
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Journaux&nbsp;<b class="caret"></b></a>
+							<ul class="dropdown-menu">
+								<li><a href="/journaux">Serveur</a></li>
+								<li><a href="/tcpdump">tcpdump</a></li>
+							</ul>
+						</li>
+						<li {% if request.path == '/liens' %}class="active"{% endif %}><a href="/liens">Liens d'intérêt</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		{% block content %}
+		{% endblock %}
+		<div class="copyright">
+			<hr>
+			Copyright &copy; 2012 BBQ &mdash; tous droits réservés.
+		</div>
+	</div>
+
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			hash = window.location.hash.substring(1);
+			window.to_open = Array();
+			if (hash.length > 0) {
+				to_open_tmp = hash.split(',');
+				for (i in to_open_tmp) {
+					id = to_open_tmp[i];
+					if ($('#' +id).length > 0) {
+						window.to_open.push(id)
+					}
+				}
+				window.location.hash = window.to_open.join(',');
+			} else {
+			}
+
+			$('.collapse').each(function() {
+				id = $(this).attr('id');
+
+				show = $.inArray(id, window.to_open) != -1;
+				$(this).collapse({toggle:show})
+
+				$(this).on('hide', function () {
+					id = $(this).attr('id');
+					idx = $.inArray(id, window.to_open);
+					if (idx != -1) {
+						window.to_open.splice(idx, 1);
+					}
+					window.location.hash = window.to_open.join(',');
+				});
+
+				$(this).on('show', function () {
+					id = $(this).attr('id');
+					idx = $.inArray(id, window.to_open);
+					if (idx == -1) {
+						window.to_open.push(id);
+					}
+					window.location.hash = window.to_open.join(',');
+				});
+
+
+			});
+
+		});
+
+	</script>
+</body>
+</html>

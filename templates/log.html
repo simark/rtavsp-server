@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block headextra %}
+<style type="text/css">
+	#log-table {
+				color: #fff;
+				text-shadow: 0px 1px rgba(0,0,0,0.4);
+				font-family: monospace;
+	}
+
+	#log-table td {
+		padding: 4px;
+	}
+
+	#log-tables_filter {
+		text-align: right;
+	}
+
+	#log-table_info {
+		display: none;
+	}
+
+	td.centered {
+		text-align: center;
+	}
+
+	.odd {
+		background: #2fa5af;
+	}
+
+	.even {
+		background: #3fb5bf;
+	}
+</style>
+{% endblock %}
+{% block content %}
+
+<h1>Journaux du serveur</h1>
+<p>Cette page montre les journaux internes du serveur.</p>
+<!--<pre style="overflow:scroll; width:100%; word-wrap:normal; white-space: pre; height: 600px;">
+{{ log }}
+</pre>-->
+
+<table id="log-table">
+	<thead>
+		<tr>
+			<th width="19%">Date / Heure</th>
+			<th width="10%">Adresse client</th>
+			<th>Entrée du journal</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+	</tbody>
+</table>
+
+<script type="text/javascript">
+		$(document).ready(function() {
+			$('#log-table').dataTable({
+				'bProcessing': true,
+				'sAjaxSource': '/journaux_json',
+				'sScrollX': '100%',
+				'bPaginate': false,
+				'aoColumns': [
+					{'sClass': 'centered'},
+					{'sClass': 'centered'},
+					{},
+				],
+				'fnRowCallback': function (nRow, aData, iDisplayIndex) {
+					orig = aData[1];
+					pattern = new RegExp("IPv4Address\\\(TCP, '([0-9]+.[0-9]+.[0-9]+.[0-9]+)', ([0-9]+)\\\)");
+					after = orig.replace(pattern, "<span style=\"color: lightgreen\">$1</span>:<span style=\"color: lightblue;\">$2</span>")
+					$('td:eq(1)', nRow).html(after);
+
+					orig = aData[2];
+					pattern = new RegExp("Erreur");
+					after = orig.replace(pattern, "<span style=\"color:#f99;\">Erreur</span>");
+					$('td:eq(2)', nRow).html(after);
+
+					return nRow;
+				},
+				'oLanguage': {
+				    "sProcessing":     "Traitement en cours...",
+				    "sSearch":         "Rechercher&nbsp;:",
+				    "sLengthMenu":     "Afficher _MENU_ &eacute;l&eacute;ments",
+				    "sInfo":           "Affichage de l'&eacute;lement _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
+				    "sInfoEmpty":      "Affichage de l'&eacute;lement 0 &agrave; 0 sur 0 &eacute;l&eacute;ments",
+				    "sInfoFiltered":   "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+				    "sInfoPostFix":    "",
+				    "sLoadingRecords": "Chargement en cours...",
+				    "sZeroRecords":    "Aucun &eacute;l&eacute;ment &agrave; afficher",
+				    "sEmptyTable":     "Aucune donnée disponible dans le tableau",
+				    "oPaginate": {
+				        "sFirst":      "Premier",
+				        "sPrevious":   "Pr&eacute;c&eacute;dent",
+				        "sNext":       "Suivant",
+				        "sLast":       "Dernier"
+				    },
+				    "oAria": {
+				        "sSortAscending":  ": activer pour trier la colonne par ordre croissant",
+				        "sSortDescending": ": activer pour trier la colonne par ordre décroissant"
+				    }
+				}
+			});
+		});
+
+	</script>
+
+
+
+{% endblock %}
