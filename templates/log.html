@@ -54,6 +54,10 @@
 </table>
 
 <script type="text/javascript">
+		function escape(t) {
+			return $('<div/>').text(t).html();
+		}
+
 		$(document).ready(function() {
 			$('#log-table').dataTable({
 				'bProcessing': true,
@@ -71,7 +75,7 @@
 					after = orig.replace(pattern, "<span style=\"color: lightgreen\">$1</span>:<span style=\"color: lightblue;\">$2</span>")
 					$('td:eq(1)', nRow).html(after);
 
-					orig = aData[2];
+					orig = escape(aData[2]);
 					pattern = new RegExp("Erreur");
 					after = orig.replace(pattern, "<span style=\"color:#f99;\">Erreur</span>");
 					$('td:eq(2)', nRow).html(after);
