@@ -114,11 +114,14 @@ class RTAVSP(protocol.Protocol):
           self.server.stlog.info("%s | Attribut 'flux' absent de la requête.", self.addr)
 
         streams = request['flux']
-        if not isinstance(streams, list):
+        if streams is not None and not isinstance(streams, list):
           self.server.stlog.info("%s | Erreur, type de la liste de flux invalide.", self.addr)
           raise Exception("Invalid type for list of streams: " + str(type(streams)))
-        
+
         self.last_commands.append( (cmd, streams, time.time()) )
+
+        if streams is None:
+          streams = self.current_streams.keys()
 
         for stream_id in streams:
           if not isinstance(stream_id, int):
