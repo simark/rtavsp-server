@@ -14,7 +14,7 @@ function int_handler() {
 trap int_handler INT
 
 for i in stream-*; do
-	./play.sh $i &
+	./play.sh $i 5 &
 	pid=$!
 	echo "Spawned $i with pid $pid"
 	pids+=($pid)
