@@ -89,7 +89,7 @@ class Stream:
       for client in clients:
         client.sendFrame(stream_id, data)
 
-    self.log.info("Broadcast %d bytes on stream %s." % (len(image), self.stream_id))
+    self.log.debug("Broadcast %d bytes on stream %s." % (len(image), self.stream_id))
 
     data = ""
 
@@ -138,9 +138,9 @@ class SelectThread(threading.Thread):
       self.log.info("Opened %s" %(fifo_path))
 
 
-    self.log.info("Entering select loop")
+    self.log.debug("Entering select loop")
     while True:
-      self.log.info("Entering select call")
+      self.log.debug("Entering select call")
       (ready_r, ready_w, ready_x) = select.select(rlist, [], [])
 
       for fd in ready_r:
